@@ -9,10 +9,9 @@ services:
     ports:
       - 10000:10000
     environment:
-      DATABASE_URL: 
+      DATABASE_URL: postgresql://my_user:kToyUHK1vNlHQ0bR3usiFynwRhraifZ6@dpg-cs8jjue8ii6s73cd38vg-a/my_database_z88b
     command: ["run", "--unstable", "--watch", "--allow-net", "--allow-env", "--allow-read", "--allow-write", "app.js"]
 
-  
   flyway:
     image: flyway/flyway:9.11.0-alpine
     depends_on:
@@ -21,8 +20,8 @@ services:
       - ./flyway/sql:/flyway/sql
     command: -connectRetries=60 -baselineOnMigrate=true migrate
     environment:
-      FLYWAY_URL: 
-      FLYWAY_USER: 
-      FLYWAY_PASSWORD: 
+      FLYWAY_URL: jdbc:postgresql://dpg-cs8jjue8ii6s73cd38vg-a:5432/my_database_z88b
+      FLYWAY_USER: my_user
+      FLYWAY_PASSWORD: kToyUHK1vNlHQ0bR3usiFynwRhraifZ6
     profiles:
       - migrate
