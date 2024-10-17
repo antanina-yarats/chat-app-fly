@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    image: app
+    restart: "no"
+    volumes:
+      - ./:/app
+      - ./app-cache/:/app-cache
+    ports:
+      - 10000:10000
+    environment:
+      DATABASE_URL: 
+    command: ["run", "--unstable", "--watch", "--allow-net", "--allow-env", "--allow-read", "--allow-write", "app.js"]
+
+  
+  flyway:
+    image: flyway/flyway:9.11.0-alpine
+    depends_on:
+      - app
+    volumes:
+      - ./flyway/sql:/flyway/sql
+    command: -connectRetries=60 -baselineOnMigrate=true migrate
+    environment:
+      FLYWAY_URL: 
+      FLYWAY_USER: 
+      FLYWAY_PASSWORD: 
+    profiles:
+      - migrate
