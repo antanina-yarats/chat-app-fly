@@ -1,10 +1,6 @@
-import { config } from "https://deno.land/x/dotenv/mod.ts";
-import { sql } from "./database/database.js"; 
-
-config(); 
-
 import { configure, renderFile } from "https://deno.land/x/eta@v2.2.0/mod.ts";
 import * as chatService from "./chatService/chatService.js";
+
 
 configure({
   views: `${Deno.cwd()}/views/`,
@@ -32,32 +28,23 @@ const addMessage = async (request) => {
 };
 
 const showAll = async() => {
+
   const data = {
     messages: await chatService.showMessages(),
-  };
+};
 
   return new Response(await renderFile("index.eta", data), responseDetails);
 };
 
 
-const testDbConnection = async () => {
-  try {
-    const result = await sql`SELECT NOW()`; 
-    console.log("Database connection successful:", result);
-  } catch (error) {
-    console.error("Database connection failed:", error);
-  
-  }
-};
-
-await testDbConnection();
-
 const handleRequest = async(request) => {
-  const url = new URL(request.url);
-  const path = url.pathname;
+   const url = new URL(request.url);
+   const path = url.pathname;
 
   if (request.method === "POST" && path === "/") {
-    return await addMessage(request);
+    await addMessage(request);
+    return redirectTo("/");
+
   } else {
     return showAll(request);
   }

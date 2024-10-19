@@ -1,3 +1,5 @@
+
+
 services:
   app:
     build: .
@@ -8,20 +10,35 @@ services:
       - ./app-cache/:/app-cache
     ports:
       - 10000:10000
-    environment:
-      DATABASE_URL: postgresql://my_user:kToyUHK1vNlHQ0bR3usiFynwRhraifZ6@dpg-cs8jjue8ii6s73cd38vg-a/my_database_z88b
-    command: ["run", "--unstable", "--watch", "--allow-net", "--allow-env", "--allow-read", "--allow-write", "app.js"]
+    depends_on:
+      - database
+      - flyway
+    env_file:
+      - project.env
+
+  database:
+    container_name: database-server-chat-app
+    image: postgres:14.1
+    restart: "no"
+    env_file:
+        - project.env
 
   flyway:
     image: flyway/flyway:9.11.0-alpine
     depends_on:
+      - database
+    volumes:
+      - .:/flyway/sql
+    command: -connectRetries=60 -baselineOnMigrate=true migrate
+    env_file:
+      - project.env
+
+  e2e-playwright:
+    entrypoint: "/bin/true" # Prevent startup on docker-compose up
+    build: e2e-playwright
+    image: e2e-playwright
+    network_mode: host
+    depends_on:
       - app
     volumes:
-      - ./flyway/sql:/flyway/sql
-    command: -connectRetries=60 -baselineOnMigrate=true migrate
-    environment:
-      FLYWAY_URL: jdbc:postgresql://dpg-cs8jjue8ii6s73cd38vg-a:5432/my_database_z88b
-      FLYWAY_USER: my_user
-      FLYWAY_PASSWORD: kToyUHK1vNlHQ0bR3usiFynwRhraifZ6
-    profiles:
-      - migrate
+      - ./e2e-playwright/tests:/e2e-playwright/tests

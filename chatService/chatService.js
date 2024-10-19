@@ -5,7 +5,7 @@ const create = async (sender, message) => {
 };
 
 const showMessages = async () => {
-   const result = await sql `SELECT sender, message FROM messages ORDER BY id ASC LIMIT 5`;
+   const result = await sql `SELECT sender, message FROM messages ORDER BY id DESC LIMIT 5`;
    return  result;
 };
 
